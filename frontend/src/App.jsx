@@ -1,36 +1,57 @@
-import React, { useEffect, useState } from "react";
-import { sendEvent, getMetrics } from "./api";
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { auth } from './firebase';
+import Login from './components/Login';
+import Dashboard from './components/Dashboard';
+import { ThemeProvider } from '@mui/material';
+import { createTheme } from '@mui/material';
+import CssBaseline from '@mui/material/CssBaseline';
+
+const theme = createTheme({
+  palette: {
+    mode: 'light',
+    primary: {
+      main: '#1976d2',
+    },
+    secondary: {
+      main: '#dc004e',
+    },
+  },
+});
 
 function App() {
-  const [metrics, setMetrics] = useState([]);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const uid = "123456"; // ID del usuario autenticado
-
-    // Enviar evento de página vista
-    sendEvent({
-      uid,
-      event: "page_view",
-      timestamp: Date.now(),
-      data: { page: window.location.pathname }
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
+      setLoading(false);
     });
 
-    // Obtener métricas del usuario
-    getMetrics(uid).then(setMetrics);
+    return () => unsubscribe();
   }, []);
 
+  if (loading) {
+    return <div>Cargando...</div>;
+  }
+
   return (
-    <div>
-      <h1>Dashboard de Analíticas</h1>
-      <h2>Métricas del usuario</h2>
-      <ul>
-        {metrics.map((metric, index) => (
-          <li key={index}>
-            {metric.event} en {new Date(metric.timestamp).toLocaleString()}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        <Routes>
+          <Route 
+            path="/" 
+            element={user ? <Navigate to="/dashboard" /> : <Login />} 
+          />
+          <Route 
+            path="/dashboard" 
+            element={user ? <Dashboard /> : <Navigate to="/" />} 
+          />
+        </Routes>
+      </Router>
+    </ThemeProvider>
   );
 }
 

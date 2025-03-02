@@ -4,7 +4,6 @@ import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 
 
 const firebaseConfig = {
-apiKey: 
 authDomain: "my-analytics-300ac.firebaseapp.com", // authDomain = ID del proyecto + ".firebaseapp.com"
 projectId: "my-analytics-300ac", // ID del proyecto
 storageBucket: "my-analytics-300ac.appspot.com", // storageBucket = ID del proyecto + ".appspot.com"
