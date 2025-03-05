@@ -53,7 +53,7 @@ const Login = () => {
           }}
         >
           <Typography component="h1" variant="h5" gutterBottom>
-            Bienvenido a Analytics Dashboard
+            My Analytics
           </Typography>
           <Button
             variant="contained"

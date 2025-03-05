@@ -2,14 +2,15 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 
-
 const firebaseConfig = {
-authDomain: "my-analytics-300ac.firebaseapp.com", // authDomain = ID del proyecto + ".firebaseapp.com"
-projectId: "my-analytics-300ac", // ID del proyecto
-storageBucket: "my-analytics-300ac.appspot.com", // storageBucket = ID del proyecto + ".appspot.com"
-messagingSenderId: "192368342259", // Número del proyecto
-appId: "1:192368342259:web:a2037b7dc7f01c9804b386" // appId que ya tienes
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
+console.log("API Key:", import.meta.env.VITE_FIREBASE_API_KEY);
 
 // Inicializa Firebase
 const app = initializeApp(firebaseConfig);
