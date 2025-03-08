@@ -36,6 +36,9 @@ import {
 import Navbar from "../../components/Navbar";
 import Calendar from "./components/calendar/Calendar";
 import ImpressionsChart from "./components/impressions/ImpressionsChart";
+import ReachChart from "./components/reach/ReachChart";
+import ReachVsImpressions from "./components/reach-vs-impressions/ReachVsImpressionsChart";
+import PlatformStats from "./components/platform/PlatformStatsChart";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
@@ -159,6 +162,8 @@ const Dashboard = () => {
         {/* Gráfico de Impresiones por Plataforma */}
         <ImpressionsChart socialStats={socialStats} />
       </Container>
+      <ReachChart socialStats={socialStats} />
+      <ReachVsImpressions socialStats={socialStats} />
       {/* Tarjetas de Resumen */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={2.4}>
@@ -255,7 +260,7 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </Grid>
-
+        <PlatformStats socialStats={socialStats} />
         {/* Lista de Eventos */}
         <Grid item xs={12}>
           <Card>
