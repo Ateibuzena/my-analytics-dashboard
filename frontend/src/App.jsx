@@ -1,20 +1,25 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { auth } from './firebase';
-import Login from './components/Login';
-import Dashboard from './components/Dashboard';
-import { ThemeProvider } from '@mui/material';
-import { createTheme } from '@mui/material';
-import CssBaseline from '@mui/material/CssBaseline';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { useEffect, useState } from "react";
+import { auth } from "./firebase";
+import Login from "./views/login/Login";
+import Dashboard from "./views/dashboard/Dashboard";
+import { ThemeProvider } from "@mui/material";
+import { createTheme } from "@mui/material";
+import CssBaseline from "@mui/material/CssBaseline";
 
 const theme = createTheme({
   palette: {
-    mode: 'light',
+    mode: "light",
     primary: {
-      main: '#1976d2',
+      main: "#1976d2",
     },
     secondary: {
-      main: '#dc004e',
+      main: "#dc004e",
     },
   },
 });
@@ -41,13 +46,13 @@ function App() {
       <CssBaseline />
       <Router>
         <Routes>
-          <Route 
-            path="/" 
-            element={user ? <Navigate to="/dashboard" /> : <Login />} 
+          <Route
+            path="/"
+            element={user ? <Navigate to="/dashboard" /> : <Login />}
           />
-          <Route 
-            path="/dashboard" 
-            element={user ? <Dashboard /> : <Navigate to="/" />} 
+          <Route
+            path="/dashboard"
+            element={user ? <Dashboard /> : <Navigate to="/" />}
           />
         </Routes>
       </Router>
