@@ -5,13 +5,71 @@ import {
   db,
   doc,
   setDoc,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
 } from "../../firebase";
 import { useNavigate } from "react-router-dom";
-import { Box, Button, Container, Typography, Paper } from "@mui/material";
+import { 
+  Box, 
+  Button, 
+  Container, 
+  Typography, 
+  Paper,
+  TextField,
+  Divider,
+  Alert,
+} from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
+import { useState } from "react";
+
 
 const Login = () => {
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isRegistering, setIsRegistering] = useState(false);
+
+  const handleEmailLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+    
+    try {
+      let userCredential;
+      
+      if (isRegistering) {
+        // Crear nuevo usuario
+        userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        // Iniciar sesión con usuario existente
+        userCredential = await signInWithEmailAndPassword(auth, email, password);
+      }
+
+      const user = userCredential.user;
+
+      // Guardar usuario en Firestore
+      await setDoc(
+        doc(db, "users", user.uid),
+        {
+          email: user.email,
+          uid: user.uid,
+          name: user.displayName || email.split('@')[0], // Usar parte del email como nombre si no hay displayName
+          photoURL: user.photoURL || null,
+        },
+        { merge: true }
+      );
+
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error:", error);
+      setError(
+        error.code === 'auth/user-not-found' ? "Usuario no encontrado" :
+        error.code === 'auth/wrong-password' ? "Contraseña incorrecta" :
+        error.code === 'auth/email-already-in-use' ? "El email ya está registrado" :
+        "Error en la autenticación"
+      );
+    }
+  };
 
   const handleLogin = async () => {
     try {
@@ -60,12 +118,59 @@ const Login = () => {
           <Typography component="h1" variant="h5" gutterBottom>
             My Analytics
           </Typography>
+
+          {error && (
+            <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+
+          <form onSubmit={handleEmailLogin} style={{ width: '100%' }}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              label="Contraseña"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3 }}
+            >
+              {isRegistering ? "Registrarse" : "Iniciar sesión"}
+            </Button>
+          </form>
+
+          <Button
+            onClick={() => setIsRegistering(!isRegistering)}
+            sx={{ mt: 1 }}
+          >
+            {isRegistering 
+              ? "¿Ya tienes cuenta? Inicia sesión" 
+              : "¿No tienes cuenta? Regístrate"}
+          </Button>
+
+          <Divider sx={{ width: '100%', my: 2 }}>o</Divider>
+
           <Button
             variant="contained"
             startIcon={<GoogleIcon />}
             onClick={handleLogin}
-            sx={{ mt: 3, mb: 2 }}
             fullWidth
+            sx={{ mt: 1 }}
           >
             Iniciar sesión con Google
           </Button>
