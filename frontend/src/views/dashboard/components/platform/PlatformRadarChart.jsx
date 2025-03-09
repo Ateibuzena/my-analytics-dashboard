@@ -8,7 +8,9 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+
 import { Card, CardContent, Typography, Grid } from "@mui/material";
+const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff6b6b"];
 
 const PlatformRadarChart = ({ socialStats }) => {
   if (!socialStats || socialStats.length === 0) {
@@ -23,29 +25,34 @@ const PlatformRadarChart = ({ socialStats }) => {
     );
   }
 
-  // Reducir los datos para obtener las impresiones y alcance por plataforma
+  // Reducir los datos para obtener las métricas por plataforma
   const platformStats = socialStats.reduce((acc, post) => {
     if (!acc[post.platform]) {
       acc[post.platform] = {
         impressions: 0,
         reach: 0,
         posts: 0,
+        interactions: 0,
       };
     }
     acc[post.platform].impressions += post.impressions || 0;
     acc[post.platform].reach += post.reach || 0;
     acc[post.platform].posts += 1;
+
+    // Sumar todas las interacciones
+    const interactions =
+      (post.likes || 0) + (post.comments || 0) + (post.shares || 0);
+    acc[post.platform].interactions += interactions;
+
     return acc;
   }, {});
 
   // Preparar los datos para el gráfico
   const data = Object.entries(platformStats).map(([platform, stats]) => ({
     platform,
-    "Impresiones Totales": Math.round(stats.impressions / 1000), // Convertir a miles
-    "Alcance Total": Math.round(stats.reach / 1000), // Convertir a miles
-    "Impresiones/Post":
-      stats.posts > 0 ? Math.round(stats.impressions / stats.posts) : 0,
-    "Alcance/Post": stats.posts > 0 ? Math.round(stats.reach / stats.posts) : 0,
+    "Total Posts": stats.posts,
+    "Total Alcance": Math.round(stats.reach / 1000), // Convertir a miles
+    "Total Interacciones": Math.round(stats.interactions / 100), // Escalar para mejor visualización
   }));
 
   return (
@@ -54,11 +61,11 @@ const PlatformRadarChart = ({ socialStats }) => {
         <Typography variant="h6" gutterBottom>
           Rendimiento por Plataforma
         </Typography>
-        <ResponsiveContainer width="100%" height={400}>
+        <ResponsiveContainer width="100%" height={500}>
           <RadarChart
-            outerRadius={150}
+            outerRadius={180}
             data={data}
-            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            margin={{ top: 70, right: 30, left: 20, bottom: 20 }}
           >
             <PolarGrid gridType="circle" />
             <PolarAngleAxis
@@ -72,57 +79,70 @@ const PlatformRadarChart = ({ socialStats }) => {
             />
             <Tooltip
               formatter={(value, name) => {
-                if (name.includes("Totales")) {
-                  return [`${value}k`, name];
+                if (name === "Total Posts") {
+                  return [value, "Posts Publicados"];
                 }
-                return [value, name];
+                if (name === "Total Alcance") {
+                  return [
+                    `${(value * 1000).toLocaleString()}`,
+                    "Alcance Total",
+                  ];
+                }
+                if (name === "Total Interacciones") {
+                  return [
+                    `${(value * 100).toLocaleString()}`,
+                    "Interacciones Totales",
+                  ];
+                }
+                return [value.toLocaleString(), name];
               }}
               contentStyle={{
                 backgroundColor: "rgba(255, 255, 255, 0.95)",
                 border: "1px solid #ccc",
                 borderRadius: "4px",
+                padding: "8px",
+                fontSize: "12px",
               }}
             />
             <Legend
-              verticalAlign="bottom"
-              height={2}
+              verticalAlign="top"
+              align="center"
+              height={36}
+              wrapperStyle={{
+                top: 0,
+                left: 0,
+                right: 0,
+                paddingBottom: "20px"
+              }}
               formatter={(value) => {
-                if (value.includes("Totales")) {
-                  return `${value} (miles)`;
-                }
-                return value;
+                const labels = {
+                  "Total Posts": "Posts Publicados",
+                  "Total Alcance": "Alcance Total (miles)",
+                  "Total Interacciones": "Interacciones Totales (x100)",
+                };
+                return labels[value] || value;
               }}
             />
 
-            {/* Métricas totales */}
             <Radar
-              name="Impresiones Totales"
-              dataKey="Impresiones Totales"
-              stroke="#8884d8"
-              fill="#8884d8"
+              name="Total Posts"
+              dataKey="Total Posts"
+              stroke={COLORS[2]}
+              fill={COLORS[2]}
               fillOpacity={0.4}
             />
             <Radar
-              name="Alcance Total"
-              dataKey="Alcance Total"
-              stroke="#82ca9d"
-              fill="#82ca9d"
-              fillOpacity={0.4}
-            />
-
-            {/* Métricas por post */}
-            <Radar
-              name="Impresiones/Post"
-              dataKey="Impresiones/Post"
-              stroke="#ffc658"
-              fill="#ffc658"
+              name="Total Alcance"
+              dataKey="Total Alcance"
+              stroke={COLORS[1]}
+              fill={COLORS[1]}
               fillOpacity={0.4}
             />
             <Radar
-              name="Alcance/Post"
-              dataKey="Alcance/Post"
-              stroke="#ff6b6b"
-              fill="#ff6b6b"
+              name="Total Interacciones"
+              dataKey="Total Interacciones"
+              stroke={COLORS[0]}
+              fill={COLORS[0]}
               fillOpacity={0.4}
             />
           </RadarChart>

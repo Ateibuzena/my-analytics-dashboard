@@ -60,7 +60,7 @@ const PostPerformanceChart = ({ socialStats }) => {
 							<XAxis 
 								dataKey="name"
 								angle={0}
-								textAnchor="end"
+								textAnchor="middle"
 								height={40}
 								interval={0}
 							/>
