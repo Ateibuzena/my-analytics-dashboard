@@ -8,37 +8,16 @@ import {
   getDoc,
   where,
 } from "firebase/firestore";
-import {
-  Box,
-  Container,
-  Grid,
-  Card,
-  CardContent,
-  Typography,
-  Avatar,
-  CircularProgress,
-  Button,
-} from "@mui/material";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
-import Navbar from "../../components/Navbar";
+import { Box, Container, Grid, CircularProgress } from "@mui/material";
+
 import Calendar from "./components/calendar/Calendar";
-import ImpressionsChart from "./components/impressions/ImpressionsChart";
-import ReachChart from "./components/reach/ReachChart";
-import ReachVsImpressions from "./components/reach-vs-impressions/ReachVsImpressionsChart";
-import PlatformStats from "./components/platform/PlatformStatsChart";
+import PlatformRadarChart from "./components/platform/PlatformRadarChart";
+import ReachChart	 from "./components/posts/ReachChart";
+import PostPerformanceChart from "./components/posts/PostPerformanceChart";
+import EventStatsChart from "./components/events/EventStatsChart";
+import MetricsCards from "./components/metrics/MetricsCards";
+import MetricsPieChart from "./components/metrics/MetricsPieChart";
+import EventSection from "./components/events/EventSection";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
@@ -126,21 +105,6 @@ const Dashboard = () => {
     );
   }
 
-  const socialMetricsData = [
-    {
-      name: "Likes",
-      value: socialStats.reduce((acc, post) => acc + post.likes, 0),
-    },
-    {
-      name: "Comentarios",
-      value: socialStats.reduce((acc, post) => acc + post.comments, 0),
-    },
-    {
-      name: "Compartidos",
-      value: socialStats.reduce((acc, post) => acc + post.shares, 0),
-    },
-  ];
-
   const totalStats = {
     likes: socialStats.reduce((acc, post) => acc + post.likes, 0),
     comments: socialStats.reduce((acc, post) => acc + post.comments, 0),
@@ -150,142 +114,72 @@ const Dashboard = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      {/* Perfil del Usuario */}
-      <Navbar />
-      <Container
-        spacing={3}
-        sx={{ mb: 4, flexDirection: "row", display: "flex", alignItems: "center", gap: 3 }}
+    <Container
+      maxWidth="lg"
+      sx={{ display: "flex", flexDirection: "column", gap: 4 }}
+    >
+      <Grid
+        sx={{
+          flexDirection: "row",
+          display: "flex",
+          alignItems: "center",
+          gap: 3,
+        }}
       >
         {/* Calendary */}
         <Calendar />
-        {/* Gráfico de Impresiones por Plataforma */}
-        <ImpressionsChart socialStats={socialStats} />
-      </Container>
-      <ReachChart socialStats={socialStats} />
-      <ReachVsImpressions socialStats={socialStats} />
+        {/* Gráfico de Métricas Redes Sociales */}
+        <MetricsPieChart socialStats={socialStats} />
+      </Grid>
       {/* Tarjetas de Resumen */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={2.4}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Total Likes
-              </Typography>
-              <Typography variant="h4">
-                {totalStats.likes.toLocaleString()}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={2.4}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Comentarios
-              </Typography>
-              <Typography variant="h4">
-                {totalStats.comments.toLocaleString()}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={2.4}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Compartidos
-              </Typography>
-              <Typography variant="h4">
-                {totalStats.shares.toLocaleString()}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={2.4}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Impresiones
-              </Typography>
-              <Typography variant="h4">
-                {totalStats.impressions.toLocaleString()}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={2.4}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Alcance
-              </Typography>
-              <Typography variant="h4">
-                {totalStats.reach.toLocaleString()}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
+      <MetricsCards totalStats={totalStats} />
+
+	  <Grid
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          gap: 3,
+          justifyContent: "space-between",
+          alignItems: "start",
+        }}
+      >
+        {/* Gráfico de Impresiones por Plataforma */}
+        <PlatformRadarChart socialStats={socialStats} />
+        {/* Gráfico de Alcance vs Impresiones */}
+        <PostPerformanceChart socialStats={socialStats} />
       </Grid>
 
-      <Grid container spacing={3}>
-        {/* Gráfico de Métricas Sociales */}
-        <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Métricas de Redes Sociales
-              </Typography>
-              <PieChart width={400} height={300}>
-                <Pie
-                  data={socialMetricsData}
-                  cx={200}
-                  cy={150}
-                  labelLine={false}
-                  label={({ name, value }) => `${name}: ${value}`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {socialMetricsData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </CardContent>
-          </Card>
-        </Grid>
-        <PlatformStats socialStats={socialStats} />
-        {/* Lista de Eventos */}
-        <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Próximos Eventos
-              </Typography>
-              <Grid container spacing={2}>
-                {eventsData.map((event) => (
-                  <Grid item xs={12} sm={6} md={4} key={event.eid}>
-                    <Card variant="outlined">
-                      <CardContent>
-                        <Typography variant="h6">{event.eventName}</Typography>
-                        <Typography color="textSecondary">
-                          {/*format(event.dateTime, "PPP", { locale: es })}*/}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
+      <Grid
+        sx={{
+          flexDirection: "row",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          width: "100%",
+          gap: 3,
+        }}
+      >
+        {/* Gráfico de Alcance */}
+        <ReachChart socialStats={socialStats} />
       </Grid>
+      <Grid
+        sx={{
+          flexDirection: "row",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          width: "100%",
+          gap: 3,
+        }}
+      >
+        {/* Gráfico de Estadísticas por Plataforma */}
+        <EventStatsChart events={eventsData} socialStats={socialStats}/>
+      </Grid>
+
+      
+
+      {/* Lista de Eventos */}
+      <EventSection events={eventsData} />
     </Container>
   );
 };

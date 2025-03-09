@@ -6,15 +6,15 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
 } from "recharts";
 import { Card, CardContent, Typography, Grid } from "@mui/material";
 
 const ReachChart = ({ socialStats }) => {
   const parseDate = (dateValue) => {
     if (dateValue instanceof Date) return dateValue;
-    if (typeof dateValue === 'number') return new Date(dateValue);
-    if (typeof dateValue === 'object' && dateValue?.seconds) {
+    if (typeof dateValue === "number") return new Date(dateValue);
+    if (typeof dateValue === "object" && dateValue?.seconds) {
       return new Date(dateValue.seconds * 1000);
     }
     return new Date(dateValue);
@@ -23,9 +23,9 @@ const ReachChart = ({ socialStats }) => {
   // Ordenar los posts y obtener fechas límite
   const sortedData = [...socialStats]
     .sort((a, b) => parseDate(a.createdAt) - parseDate(b.createdAt))
-    .map(post => ({
+    .map((post) => ({
       date: parseDate(post.createdAt),
-      reach: post.reach
+      reach: post.reach,
     }));
 
   // Si no hay datos, mostrar un rango predeterminado
@@ -48,33 +48,33 @@ const ReachChart = ({ socialStats }) => {
   // Crear array con todos los días en el rango
   const allDates = [];
   const currentDate = new Date(firstDate);
-  
+
   while (currentDate <= lastDate) {
     const existingData = sortedData.find(
-      d => d.date.toDateString() === currentDate.toDateString()
+      (d) => d.date.toDateString() === currentDate.toDateString()
     );
-    
+
     allDates.push({
       date: new Date(currentDate),
-      reach: existingData ? existingData.reach : null
+      reach: existingData ? existingData.reach : null,
     });
-    
+
     currentDate.setDate(currentDate.getDate() + 1);
   }
 
-  const formattedData = allDates.map(item => ({
+  const formattedData = allDates.map((item) => ({
     date: item.date.toLocaleDateString(),
-    reach: item.reach
+    reach: item.reach,
   }));
 
   // Calcular el mínimo y máximo de alcance (excluyendo valores null)
   const reaches = formattedData
-    .map(item => item.reach)
-    .filter(reach => reach !== null);
-  
+    .map((item) => item.reach)
+    .filter((reach) => reach !== null);
+
   const minReach = Math.min(...reaches);
   const maxReach = Math.max(...reaches);
-  
+
   // Calcular el rango y los márgenes (10% del rango)
   const range = maxReach - minReach;
   const margin = range * 0.1;
@@ -82,45 +82,40 @@ const ReachChart = ({ socialStats }) => {
   // Definir los límites del dominio
   const yDomain = [
     Math.max(0, minReach - margin), // No permitir valores negativos
-    maxReach + margin
+    maxReach + margin,
   ];
 
   return (
-    <Grid item xs={12} md={6} mt={6.5}>
-      <Card>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Evolución del Alcance
-          </Typography>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart
-              data={formattedData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="date"
-                tickFormatter={(date) => date}
-                interval={Math.floor(formattedData.length / 6)}
-              />
-              <YAxis 
-                domain={yDomain}
-                allowDataOverflow={false}
-              />
-              <Tooltip />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="reach"
-                stroke="#8884d8"
-                dot={{ r: 4 }}
-                activeDot={{ r: 8 }}
-                connectNulls={true}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+    <Grid item xs={12} md={6} sx={{ width: "100%"}}>
+      <CardContent>
+        <Typography variant="h6" gutterBottom>
+          Evolución del Alcance
+        </Typography>
+        <ResponsiveContainer width="100%" height={400}>
+          <LineChart
+            data={formattedData}
+            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="date"
+              tickFormatter={(date) => date}
+              interval={Math.floor(formattedData.length / 6)}
+            />
+            <YAxis domain={yDomain} allowDataOverflow={false} />
+            <Tooltip />
+            <Legend />
+            <Line
+              type="monotone"
+              dataKey="reach"
+              stroke="#8884d8"
+              dot={{ r: 4 }}
+              activeDot={{ r: 8 }}
+              connectNulls={true}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </CardContent>
     </Grid>
   );
 };
